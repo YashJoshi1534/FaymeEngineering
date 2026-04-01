@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowRight, ShieldCheck, Settings, Quote, X,
+  ArrowRight, ShieldCheck, Settings, Quote, X, Menu,
   FlaskConical, Dna, UtensilsCrossed, Stethoscope, BriefcaseMedical
 } from 'lucide-react';
 
@@ -83,15 +83,16 @@ const ImagePlaceholder = ({ text, className }) => (
 const LogoPlaceholder = ({ className = '', isScrolled = false }) => (
   <div className={`flex flex-col transition-transform duration-300 ${isScrolled ? 'scale-90 origin-left' : ''} ${className}`}>
     <div className="flex items-baseline gap-1">
-      <span className="text-3xl font-syne font-extrabold text-[#1A6FB0] tracking-tight">Fayme</span>
-      <span className="text-3xl font-syne font-extrabold text-[#2ECC71]">✦</span>
+      <span className="text-2xl md:text-3xl font-syne font-extrabold text-[#1A6FB0] tracking-tight">Fayme</span>
+      <span className="text-2xl md:text-3xl font-syne font-extrabold text-[#2ECC71]">✦</span>
     </div>
-    <span className="text-[#2ECC71] text-[10px] uppercase font-bold tracking-widest leading-none mt-1">ENGINEERING PVT. LTD.</span>
+    <span className="text-[#2ECC71] text-[8px] md:text-[10px] uppercase font-bold tracking-widest leading-none mt-1">ENGINEERING PVT. LTD.</span>
   </div>
 );
 
 const Navbar = ({ activeSection }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -101,34 +102,92 @@ const Navbar = ({ activeSection }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const navLinks = ['Home', 'About', 'Industries', 'Why Us', 'Products', 'Partners'];
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md h-16' : 'bg-white shadow-sm h-24 border-b border-gray-100'}`}>
-      <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-        <div className="flex items-center gap-2 cursor-pointer">
-          <LogoPlaceholder isScrolled={isScrolled} />
+    <>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md h-16' : 'bg-white shadow-sm h-20 md:h-24 border-b border-gray-100'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+          <div className="flex items-center gap-2 cursor-pointer relative z-50">
+            <LogoPlaceholder isScrolled={isScrolled} />
+          </div>
+          
+          <div className="hidden lg:flex items-center gap-8 text-sm font-bold text-gray-600 uppercase tracking-wide">
+            {navLinks.map((item) => {
+              const id = item.toLowerCase().replace(' ', '-');
+              const isActive = activeSection === id;
+              return (
+                <a 
+                  key={item} 
+                  href={`#${id}`} 
+                  className={`transition-colors py-2 border-b-2 ${isActive ? 'text-[#2ECC71] border-[#2ECC71]' : 'border-transparent hover:text-[#2ECC71]'}`}
+                >
+                  {item}
+                </a>
+              );
+            })}
+          </div>
+          <div className="hidden lg:block">
+            <a href="#contact" className={`border-2 border-[#1A6FB0] text-[#1A6FB0] hover:bg-[#1A6FB0] hover:text-white rounded-full font-bold transition-all ${isScrolled ? 'px-5 py-1.5 text-sm' : 'px-6 py-2'}`}>
+              Request a Quote
+            </a>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="lg:hidden p-2 text-gray-600 hover:text-[#1A6FB0] transition-colors relative z-50"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
-        <div className="hidden lg:flex items-center gap-8 text-sm font-bold text-gray-600 uppercase tracking-wide">
-          {['Home', 'About', 'Industries', 'Why Us', 'Products', 'Partners'].map((item) => {
-            const id = item.toLowerCase().replace(' ', '-');
-            const isActive = activeSection === id;
-            return (
-              <a 
-                key={item} 
-                href={`#${id}`} 
-                className={`transition-colors py-2 border-b-2 ${isActive ? 'text-[#2ECC71] border-[#2ECC71]' : 'border-transparent hover:text-[#2ECC71]'}`}
-              >
-                {item}
-              </a>
-            );
-          })}
-        </div>
-        <div className="hidden md:block">
-          <a href="#contact" className={`border-2 border-[#1A6FB0] text-[#1A6FB0] hover:bg-[#1A6FB0] hover:text-white rounded-full font-bold transition-all ${isScrolled ? 'px-5 py-1.5 text-sm' : 'px-6 py-2'}`}>
-            Request a Quote
-          </a>
-        </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+              className="absolute right-0 top-0 bottom-0 w-[280px] bg-white shadow-2xl flex flex-col pt-24 px-6 pb-6"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex flex-col gap-6 text-base font-bold text-gray-800 uppercase tracking-wide flex-1">
+                {navLinks.map((item) => {
+                  const id = item.toLowerCase().replace(' ', '-');
+                  const isActive = activeSection === id;
+                  return (
+                    <a 
+                      key={item} 
+                      href={`#${id}`} 
+                      className={`transition-colors pb-2 border-b ${isActive ? 'text-[#2ECC71] border-[#2ECC71]' : 'border-gray-100 hover:text-[#1A6FB0]'}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item}
+                    </a>
+                  );
+                })}
+              </div>
+              
+              <div className="mt-auto">
+                <a href="#contact" onClick={() => setIsMobileMenuOpen(false)} className="block text-center w-full bg-[#1A6FB0] text-white rounded-full font-bold py-3">
+                  Request a Quote
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
@@ -156,27 +215,27 @@ const Hero = () => {
       </div>
 
       {/* Text Content Safely Floating Above Everything */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 h-full flex pt-32 pb-24 items-center justify-between box-border pointer-events-none">
-        {/* Left Bottom Text */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 h-full lg:flex lg:flex-row lg:justify-between lg:items-stretch lg:pt-28 lg:pb-16 box-border pointer-events-none">
+        {/* Left Bottom Text — mobile: top-left absolute, desktop: bottom-left flex */}
         <motion.div 
            initial={{ x: -50, opacity: 0 }} 
            animate={{ x: 0, opacity: 1 }} 
            transition={{ duration: 0.8, delay: 0.2 }}
-           className="self-end max-w-[40%] pointer-events-auto"
+           className="absolute top-24 left-4 sm:left-6 lg:relative lg:top-auto lg:left-auto lg:self-end max-w-[52%] sm:max-w-[45%] lg:max-w-[40%] pointer-events-auto bg-black/20 lg:bg-transparent p-3 lg:p-0 rounded-xl backdrop-blur-sm lg:backdrop-blur-none border border-white/10 lg:border-transparent"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-[42px] font-bold text-white mb-2 font-syne leading-[1.15]">PURIFIED WATER<br/>GENERATION</h2>
-          <p className="text-white/90 text-[15px] font-medium drop-shadow-md">Technology consulting provides<br/>a total end to end solution"</p>
+          <h2 className="text-[16px] leading-tight sm:text-2xl md:text-4xl lg:text-[42px] font-bold text-white mb-1 font-syne lg:leading-[1.15]">PURIFIED WATER<br/>GENERATION</h2>
+          <p className="text-white/90 text-[11px] sm:text-sm md:text-[15px] font-medium drop-shadow-md">Technology consulting provides<br/>a total end to end solution"</p>
         </motion.div>
 
-        {/* Right Top Text */}
+        {/* Right Top Text — mobile: bottom-right absolute, desktop: top-right flex */}
         <motion.div 
            initial={{ x: 50, opacity: 0 }} 
            animate={{ x: 0, opacity: 1 }} 
            transition={{ duration: 0.8, delay: 0.4 }}
-           className="self-start text-right max-w-[40%] mt-8 pointer-events-auto"
+           className="absolute bottom-8 right-4 sm:right-6 lg:relative lg:bottom-auto lg:right-auto lg:self-start text-right max-w-[52%] sm:max-w-[45%] lg:max-w-[40%] pointer-events-auto bg-black/20 lg:bg-transparent p-3 lg:p-0 rounded-xl backdrop-blur-sm lg:backdrop-blur-none border border-white/10 lg:border-transparent"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-[42px] font-bold text-white mb-2 font-syne leading-[1.15]">CUSTOMIZED SOLUTION<br/>FOR YOUR BUSINESS NEEDS</h2>
-          <p className="text-white/90 text-[15px] font-medium drop-shadow-md">Technology consulting provides<br/>a total end to end solution"</p>
+          <h2 className="text-[16px] leading-tight sm:text-2xl md:text-4xl lg:text-[42px] font-bold text-white mb-1 font-syne lg:leading-[1.15]">CUSTOMIZED SOLUTION<br/>FOR YOUR BUSINESS NEEDS</h2>
+          <p className="text-white/90 text-[11px] sm:text-sm md:text-[15px] font-medium drop-shadow-md">Technology consulting provides<br/>a total end to end solution"</p>
         </motion.div>
       </div>
     </section>
@@ -199,7 +258,7 @@ const About = () => {
           <p className="text-gray-700 leading-relaxed md:leading-[2] mb-8 text-sm sm:text-[15px] font-medium text-justify sm:text-left">
             <strong className="text-gray-900 font-bold">Fayme Engineering Pvt. Ltd.</strong> is specialized in Life care segment like <strong className="text-gray-900 font-bold">Purified water generation systems</strong> for pharmaceutical manufacturing units and hospitals for operation of high-end medical devices. Fayme Engineering provides customized solutions for water purification, storage and distribution system. Fayme ranges its products for fulfilling requirements of water for industrial use, drinking water and ultra-pure water for sensitive industries like semiconductor, electronics etc.
           </p>
-          <button className="bg-[#58A05B] hover:bg-[#4a8a4e] text-white px-8 py-3 rounded text-sm font-semibold shadow-sm transition-all mt-2">
+          <button className="bg-[#1A6FB0] hover:bg-[#155a8f] text-white px-8 py-3 rounded-full text-sm font-semibold shadow-md hover:shadow-lg transition-all mt-2">
             Read More...
           </button>
         </motion.div>
@@ -210,22 +269,25 @@ const About = () => {
           whileInView={{ opacity: 1, x: 0 }} 
           transition={{ duration: 0.8, type: "spring" }} 
           viewport={{ once: true }}
-          className="relative h-[450px] lg:h-[550px] flex items-center justify-center w-full mt-10 lg:mt-0"
+          className="relative flex items-center justify-center w-full mt-16 sm:mt-20 lg:mt-0 pb-12 lg:pb-0"
         >
-          {/* Decorative Dotted Grid (Top Right) */}
-          <div className="absolute right-4 lg:-right-8 top-12 lg:top-16 w-32 lg:w-48 h-32 lg:h-48 bg-[radial-gradient(#a1a1aa_2.5px,transparent_2.5px)] [background-size:18px_18px] opacity-40 z-0"></div>
-          
-          {/* Solid Green accent on the right edge */}
-          <div className="absolute -right-6 lg:-right-12 top-1/2 w-16 lg:w-20 h-32 lg:h-40 bg-[#66B050] rounded-l-3xl z-0 transform -translate-y-1/2"></div>
+          {/* Constrained clustered container */}
+          <div className="relative w-[75%] sm:w-[65%] lg:w-[85%] max-w-[460px] aspect-square mx-auto lg:ml-auto lg:mr-8">
+            {/* Decorative Dotted Grid */}
+            <div className="absolute -right-4 sm:-right-8 lg:-right-12 -top-4 sm:-top-8 lg:-top-16 w-[45%] h-[45%] bg-[radial-gradient(#a1a1aa_2.5px,transparent_2.5px)] [background-size:min(18px,4vw)_min(18px,4vw)] opacity-40 z-0"></div>
+            
+            {/* Solid Green accent */}
+            <div className="absolute -right-4 sm:-right-8 lg:-right-12 top-1/2 w-[18%] h-[55%] bg-[#66B050] rounded-l-3xl z-0 transform -translate-y-1/2"></div>
 
-          {/* Large Circle (Main Image) */}
-          <div className="absolute right-4 lg:right-12 top-0 lg:top-4 w-[300px] h-[300px] lg:w-[460px] lg:h-[460px] rounded-full overflow-hidden shadow-2xl z-10 bg-white">
-             <img src="https://picsum.photos/seed/faymefactory/800/800" className="w-full h-full object-cover" alt="Large Plant Aerial" />
-          </div>
+            {/* Large Circle (Main Image) */}
+            <div className="absolute inset-0 rounded-full overflow-hidden shadow-xl lg:shadow-2xl z-10 bg-white border-8 sm:border-[12px] lg:border-[16px] border-white box-border">
+               <img src="https://picsum.photos/seed/faymefactory/800/800" className="w-full h-full object-cover" alt="Large Plant Aerial" />
+            </div>
 
-          {/* Small Circle (Overlapping Image) */}
-          <div className="absolute left-0 bottom-0 lg:bottom-8 w-[200px] h-[200px] lg:w-[280px] lg:h-[280px] rounded-full overflow-hidden border-[10px] lg:border-[16px] border-white shadow-[0_15px_40px_-15px_rgba(0,0,0,0.3)] z-20 bg-white">
-             <img src="https://picsum.photos/seed/faymetanks/600/600" className="w-full h-full object-cover" alt="Storage Tanks Interior" />
+            {/* Small Circle (Overlapping Image) */}
+            <div className="absolute -left-[18%] -bottom-[12%] w-[55%] h-[55%] rounded-full overflow-hidden border-8 lg:border-[14px] border-white shadow-lg lg:shadow-[0_15px_40px_-15px_rgba(0,0,0,0.3)] z-20 bg-white box-border">
+               <img src="https://picsum.photos/seed/faymetanks/600/600" className="w-full h-full object-cover" alt="Storage Tanks Interior" />
+            </div>
           </div>
         </motion.div>
       </div>
@@ -244,7 +306,7 @@ const Industries = () => {
 
   return (
     <section id="industries" className="py-20 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 mb-12">
+      <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={fadeUp}>
           <p className="text-[#1A6FB0] text-sm uppercase tracking-wider font-semibold mb-2">Industries We Serve</p>
           <h2 className="text-4xl text-gray-900 font-syne font-medium pb-4">Serving Critical Sectors Including</h2>
@@ -260,7 +322,7 @@ const Industries = () => {
          >
             {[...industries, ...industries, ...industries, ...industries].map((ind, i) => (
                <div key={i} className="flex flex-col items-center flex-1 w-32 group/ind">
-                 <div className="w-20 h-20 rounded-full bg-[#4CAF50] flex items-center justify-center text-white mb-4 shadow-lg group-hover/ind:scale-110 group-hover/ind:-translate-y-2 transition-transform duration-500 cursor-pointer lg:w-24 lg:h-24">
+                 <div className="w-20 h-20 rounded-full bg-[#2ECC71] flex items-center justify-center text-white mb-4 shadow-[0_10px_25px_rgba(46,204,113,0.35)] group-hover/ind:scale-110 group-hover/ind:-translate-y-2 group-hover/ind:bg-[#27ae60] transition-all duration-500 cursor-pointer lg:w-24 lg:h-24">
                    {React.cloneElement(ind.icon, { className: 'w-8 h-8 lg:w-10 lg:h-10' })}
                  </div>
                  <p className="text-gray-800 font-medium text-center whitespace-nowrap text-sm lg:text-base">{ind.name}</p>
@@ -289,17 +351,17 @@ const Reliability = () => {
   ];
 
   return (
-    <section id="why-us" className="py-24 bg-gradient-to-b from-[#0b1320] to-[#040810] text-white overflow-hidden relative font-inter">
-      {/* Subtle Background Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:48px_48px] opacity-60 z-0 pointer-events-none"></div>
+    <section id="why-us" className="py-24 bg-gradient-to-b from-[#f0f8ff] to-[#e6f3fb] text-gray-900 overflow-hidden relative font-inter">
+      {/* Subtle Background Pattern - Changed from white to subtle dark dots for light background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000005_1px,transparent_1px),linear-gradient(to_bottom,#00000005_1px,transparent_1px)] bg-[size:48px_48px] opacity-60 z-0 pointer-events-none"></div>
       
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-[#1A6FB0] rounded-full blur-[180px] z-0 opacity-20 pointer-events-none"></div>
+      {/* Background Glow - Make the glow a softer white/blue to lift the center */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-white rounded-full blur-[120px] z-0 opacity-60 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp} className="text-center mb-16">
-          <p className="text-[#5DB065] text-sm uppercase tracking-[0.25em] font-bold mb-4 font-syncopate">Why Us</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Reliability That Flows Through Our Systems</h2>
+          <p className="text-[#1A6FB0] text-sm uppercase tracking-[0.25em] font-bold mb-4 font-syncopate">Why Us</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-[#0f2e4a] tracking-tight">Reliability That Flows Through Our Systems</h2>
         </motion.div>
         
         <div className="grid lg:grid-cols-[1fr_auto_1fr] gap-10 lg:gap-16 items-center mt-12 max-w-[85rem] mx-auto">
@@ -313,11 +375,12 @@ const Reliability = () => {
                    whileInView={{ x: 0, opacity: 1 }} 
                    transition={{ duration: 0.7, delay: i * 0.15, type: 'spring', bounce: 0.3 }} 
                    viewport={{ once: true, amount: 0.8 }}
-                   className="flex items-center justify-start lg:justify-end gap-5 group w-full lg:max-w-[340px]"
+                   className="flex items-center justify-start lg:justify-end gap-5 group w-full lg:max-w-[340px] cursor-default"
                 >
-                   <p className="font-semibold text-base sm:text-lg text-gray-200 leading-snug text-left lg:text-right group-hover:text-white transition-colors flex-1 drop-shadow-sm">{p.title}</p>
-                   <div className="w-[3.5rem] h-[3.5rem] rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-[#1A6FB0]/30 transition-colors order-first lg:order-last border border-white/10 shadow-lg">
-                     <ShieldCheck className="w-6 h-6 text-[#5DB065] group-hover:scale-110 transition-transform shadow-red-200" strokeWidth={2.5} />
+                   <p className="font-semibold text-base sm:text-lg text-gray-600 leading-snug text-left lg:text-right group-hover:text-[#1A6FB0] transition-colors flex-1 drop-shadow-sm">{p.title}</p>
+                   {/* Light Theme Button icon container */}
+                   <div className="w-[3.5rem] h-[3.5rem] rounded-full bg-white backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-[#1A6FB0] transition-colors duration-300 order-first lg:order-last border border-[#1A6FB0]/20 shadow-sm group-hover:shadow-[0_0_20px_rgba(26,111,176,0.3)]">
+                     <ShieldCheck className="w-6 h-6 text-[#1A6FB0] group-hover:text-white group-hover:scale-110 transition-all duration-300" strokeWidth={2.5} />
                    </div>
                 </motion.div>
              ))}
@@ -329,10 +392,10 @@ const Reliability = () => {
              whileInView={{ scale: 1, opacity: 1, y: 0 }} 
              transition={{ duration: 0.8, delay: 0.2, type: 'spring', bounce: 0.4 }} 
              viewport={{ once: true, amount: 0.4 }} 
-             className="relative z-10 rounded-full overflow-hidden shadow-[0_0_80px_rgba(26,111,176,0.25)] border-4 border-white/10 w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] lg:w-[380px] lg:h-[380px] xl:w-[420px] xl:h-[420px] mx-auto order-1 lg:order-2 group"
+             className="relative z-10 rounded-full overflow-hidden shadow-[0_20px_60px_-15px_rgba(26,111,176,0.2)] border-8 border-white w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] lg:w-[380px] lg:h-[380px] xl:w-[420px] xl:h-[420px] mx-auto order-1 lg:order-2 group bg-white"
           >
              <img src="https://picsum.photos/seed/faymereliability/800/800" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" alt="Reliability Check" />
-             <div className="absolute inset-0 rounded-full shadow-[inset_0_0_50px_rgba(0,0,0,0.6)] pointer-events-none"></div>
+             <div className="absolute inset-0 rounded-full shadow-[inset_0_0_40px_rgba(255,255,255,0.4)] pointer-events-none"></div>
           </motion.div>
 
           {/* Right Column - 3 Points */}
@@ -344,12 +407,13 @@ const Reliability = () => {
                    whileInView={{ x: 0, opacity: 1 }} 
                    transition={{ duration: 0.7, delay: i * 0.15 + 0.3, type: 'spring', bounce: 0.3 }} 
                    viewport={{ once: true, amount: 0.8 }}
-                   className="flex items-center justify-start gap-5 group w-full lg:max-w-[340px]"
+                   className="flex items-center justify-start gap-5 group w-full lg:max-w-[340px] cursor-default"
                 >
-                   <div className="w-[3.5rem] h-[3.5rem] rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-[#1A6FB0]/30 transition-colors border border-white/10 shadow-lg">
-                     <ShieldCheck className="w-6 h-6 text-[#5DB065] group-hover:scale-110 transition-transform" strokeWidth={2.5} />
+                   {/* Light Theme Button icon container */}
+                   <div className="w-[3.5rem] h-[3.5rem] rounded-full bg-white backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-[#1A6FB0] transition-colors duration-300 border border-[#1A6FB0]/20 shadow-sm group-hover:shadow-[0_0_20px_rgba(26,111,176,0.3)]">
+                     <ShieldCheck className="w-6 h-6 text-[#1A6FB0] group-hover:text-white group-hover:scale-110 transition-all duration-300" strokeWidth={2.5} />
                    </div>
-                   <p className="font-semibold text-base sm:text-lg text-gray-200 leading-snug text-left group-hover:text-white transition-colors flex-1 drop-shadow-sm">{p.title}</p>
+                   <p className="font-semibold text-base sm:text-lg text-gray-600 leading-snug text-left group-hover:text-[#1A6FB0] transition-colors flex-1 drop-shadow-sm">{p.title}</p>
                 </motion.div>
              ))}
           </div>
@@ -376,7 +440,7 @@ const ProductsGallery = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <p className="text-[#1A6FB0] text-sm uppercase tracking-wider font-semibold mb-4">Our Products</p>
+            {/* <p className="text-[#1A6FB0] text-sm uppercase tracking-wider font-semibold mb-4">Our Products</p> */}
             <h2 className="text-4xl text-gray-900 font-light mb-4">Pharmaceutical Process Equipment Solutions</h2>
             <p className="text-gray-500 max-w-2xl mx-auto">Explore our diverse range of high-quality engineered solutions tailored to meet the rigorous demands of the pharmaceutical industry.</p>
           </motion.div>
@@ -409,7 +473,7 @@ const ProductsGallery = () => {
               </div>
               
               <div className="p-8 flex flex-col flex-1 relative bg-white">
-                <div className="text-[2.5rem] font-light text-[#2ECC71] mb-4 font-syne leading-none tracking-tight">
+                <div className="text-[2.5rem] font-light text-[#1A6FB0]/50 mb-4 font-syne leading-none tracking-tight">
                   {(i + 1).toString().padStart(2, '0')}
                 </div>
                 <h3 className="text-[1.35rem] font-bold text-[#1A6FB0] mb-4 leading-tight font-syne">{p.title}</h3>
@@ -418,7 +482,7 @@ const ProductsGallery = () => {
                 </p>
                 
                 <button 
-                  className="mt-auto flex items-center gap-2 text-[#2ECC71] font-bold text-sm tracking-wider uppercase group-hover:translate-x-1 transition-transform w-fit"
+                  className="mt-auto flex items-center gap-2 text-[#1A6FB0] font-bold text-sm tracking-wider uppercase group-hover:translate-x-1 transition-transform w-fit"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedProduct(p);
@@ -597,7 +661,7 @@ const Partners = () => {
     <section id="partners" className="py-24 bg-white relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-6 text-center mb-16 relative z-10">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-          <p className="text-[#1A6FB0] text-sm uppercase tracking-wider font-semibold mb-4">Our Partners</p>
+          {/* <p className="text-[#1A6FB0] text-sm uppercase tracking-wider font-semibold mb-4">Our Partners</p> */}
           <h2 className="text-4xl md:text-5xl text-gray-900 mb-6 font-light leading-tight">Building Lasting Client Relationships</h2>
           <p className="text-gray-600 text-sm leading-relaxed max-w-2xl mx-auto">
             Through innovation, reliability, and exceptional service, we strive to be a trusted partner for every stage of their journey.
